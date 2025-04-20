@@ -1,5 +1,5 @@
 <main>
-    <!--Formulário-->
+    <!--Formulário para Cadastro-->
     <div class="container">
         <div class="row">
             <div class="col-6 offset-3">
@@ -7,9 +7,29 @@
                     <h1>Cadastro de Produto</h1>
                     <input type="text" name="nome" class="form-control" placeholder="Nome do produto" required>
                     <input type="text" name="valor" class="form-control" placeholder="Preço" required>
-                    <input type="file" name="imagem" class="form-control" required>I
+                    <input type="file" name="imagem" class="form-control" required>
                     <input type="submit" class="btn btn-primary" value="Cadastrar">
                 </form>
+
+            <!--Lista de Produtos-->   
+        <div class="container">
+            <div class="row">
+              {{#each produtos}}
+                <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                    <div class="card">  
+                        <img src="/img/{{imagem}}">
+
+                        <div class="textos">
+                            <p>{{nome}}</p>
+                            <p>R${{valor}},00</p>
+                        </div>
+                        <a href="#" class="btn btn-warning">Editar</a>
+                        <a href="#" class="btn btn-danger">Excluir</a>
+                    </div>
+                </div>
+            {{/each}}
+            </div>
+        </div>
                 
             </div>
         </div>

@@ -23,6 +23,9 @@ app.use('/bootstrap', express.static('./node_modules/bootstrap/dist'));
 //Add o css
 app.use('/css', express.static('./css'));
 
+//Referenciando a pasta imagens para o handlebars
+app.use('/img', express.static('./img'));   
+
 //Config do express-handlebars
 app.engine('handlebars', engine());
 app.set('view engine', 'handlebars');
@@ -45,29 +48,34 @@ conexao.connect(function (erro) {
 
 //Rota principal
 app.get('/', (req, res) => {
-    res.render('formulario')
+    
+    let sql = 'SELECT * FROM produtos';
+    conexao.query(sql, function (erro, retorno){
+        res.render('formulario', {produtos:retorno})
+    })
 });
 //Rota para cadastrar o produto
 app.post('/cadastrar', (req, res) => {
-    //Pegando os dados do formulário
+    // Pegando os dados do formulário
     let nome = req.body.nome;
     let valor = req.body.valor;
     let imagem = req.files.imagem;
 
-    let sql = `INSERT INTO produtos (nome, valor, imagem) VALUES ('${nome}', ${valor}, '${imagem}')`;
-
-    conexao.query(sql, function (erro, retorno) {
-        //caso ocorra um erro
+    // Salvando o arquivo na pasta 'img' com o nome original
+    let imagemNome = imagem.name;
+    imagem.mv(__dirname + '/img/' + imagemNome, (erro) => {
         if (erro) throw erro;
-        //caso dê tudo certo
-        req.files.imagem.mv(__dirname + '/img/' + req.files.imagem.name)
-        console.log(retorno)
 
-        //redirecionando de volta para o formulário
-        res.redirect('/');
+        // Inserindo os dados no banco de dados
+        let sql = `INSERT INTO produtos (nome, valor, imagem) VALUES ('${nome}', ${valor}, '${imagemNome}')`;
+        conexao.query(sql, function (erro, retorno) {
+            if (erro) throw erro;
 
-    })
-})
+            console.log(retorno);
+            res.redirect('/');
+        });
+    });
+});
 //Iniciando o servidor
 app.listen(3000, () => {
     console.log('server is running on port 3000');
