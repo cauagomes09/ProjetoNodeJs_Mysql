@@ -96,6 +96,12 @@ app.get('/deletar/:codigo&:imagem', (req, res) => {
     }
 )});
 
+//Rota para editar o produto
+app.get('/editar/:codigo', (req, res) =>{
+    console.log(req.params.codigo);
+    res.end()
+})
+
 app.listen(3000, () => {
     console.log('server is running on port 3000');
 });
