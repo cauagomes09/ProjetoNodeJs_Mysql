@@ -7,6 +7,10 @@ const { engine } = require('express-handlebars');
 //Importado o express-fileupload
 const fileUpload = require('express-fileupload');
 
+//Importando o File System
+const fs = require('fs');
+
+//Rota sql
 const mysql = require('mysql2');
 const conexao = mysql.createConnection({
     host: 'localhost',
@@ -24,7 +28,7 @@ app.use('/bootstrap', express.static('./node_modules/bootstrap/dist'));
 app.use('/css', express.static('./css'));
 
 //Referenciando a pasta imagens para o handlebars
-app.use('/img', express.static('./img'));   
+app.use('/img', express.static('./img'));
 
 //Config do express-handlebars
 app.engine('handlebars', engine());
@@ -46,15 +50,15 @@ conexao.connect(function (erro) {
     console.log("Conexão com o B.D efetuada com sucesso!");
 });
 
-//Rota principal / listagem de produtos
+
 app.get('/', (req, res) => {
-    
+
     let sql = 'SELECT * FROM produtos';
-    conexao.query(sql, function (erro, retorno){
-        res.render('formulario', {produtos:retorno})
+    conexao.query(sql, function (erro, retorno) {
+        res.render('formulario', { produtos: retorno })
     })
 });
-//Rota para cadastrar o produto
+
 app.post('/cadastrar', (req, res) => {
     // Pegando os dados do formulário
     let nome = req.body.nome;
@@ -80,13 +84,18 @@ app.post('/cadastrar', (req, res) => {
 
 //Rota para deletar o produto
 app.get('/deletar/:codigo&:imagem', (req, res) => {
-    console.log(req.params.codigo);
-    console.log(req.params.imagem);
-    res.end();
+    let sql = `DELETE FROM produtos WHERE codigo = ${req.params.codigo}`;
 
-});
+    conexao.query(sql, function (erro, retorno) {
+        if (erro) throw erro;
+    })
+    fs.unlink(__dirname + '/img/' + req.params.imagem, (err) => {
+        console.log("Arquivo deletado com sucesso!");
 
-//Iniciando o servidor
+        res.redirect('/');
+    }
+)});
+
 app.listen(3000, () => {
     console.log('server is running on port 3000');
 });
