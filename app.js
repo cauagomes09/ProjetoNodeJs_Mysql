@@ -46,7 +46,7 @@ conexao.connect(function (erro) {
     console.log("Conexão com o B.D efetuada com sucesso!");
 });
 
-//Rota principal
+//Rota principal / listagem de produtos
 app.get('/', (req, res) => {
     
     let sql = 'SELECT * FROM produtos';
@@ -76,6 +76,16 @@ app.post('/cadastrar', (req, res) => {
         });
     });
 });
+
+
+//Rota para deletar o produto
+app.get('/deletar/:codigo&:imagem', (req, res) => {
+    console.log(req.params.codigo);
+    console.log(req.params.imagem);
+    res.end();
+
+});
+
 //Iniciando o servidor
 app.listen(3000, () => {
     console.log('server is running on port 3000');
