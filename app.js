@@ -50,7 +50,7 @@ conexao.connect(function (erro) {
     console.log("Conexão com o B.D efetuada com sucesso!");
 });
 
-
+//rota principal
 app.get('/', (req, res) => {
 
     let sql = 'SELECT * FROM produtos';
@@ -58,14 +58,28 @@ app.get('/', (req, res) => {
         res.render('formulario', { produtos: retorno })
     })
 });
+// Rota principal contendo a situação
+app.get('/:situacao', (req, res) => {
+
+    let sql = 'SELECT * FROM produtos';
+
+    conexao.query(sql, function (erro, retorno) {
+        res.render('formulario', { produtos: retorno, situacao: req.params.situacao });
+    });
+});
 
 app.post('/cadastrar', (req, res) => {
-    // Pegando os dados do formulário
+    try {
+         // Pegando os dados do formulário
     let nome = req.body.nome;
     let valor = req.body.valor;
     let imagem = req.files.imagem;
 
-    // Salvando o arquivo na pasta 'img' com o nome original
+    if(nome ===''|| valor === '' || isNaN(valor)){
+        res.redirect('/falhaDoCadastro');
+
+    }else{
+        // Salvando o arquivo na pasta 'img' com o nome original
     let imagemNome = imagem.name;
     imagem.mv(__dirname + '/img/' + imagemNome, (erro) => {
         if (erro) throw erro;
@@ -76,9 +90,13 @@ app.post('/cadastrar', (req, res) => {
             if (erro) throw erro;
 
             console.log(retorno);
-            res.redirect('/');
+            res.redirect('/cadastroSucesso');
         });
     });
+    }
+    
+    } catch (error) {
+}
 });
 
 
@@ -94,13 +112,87 @@ app.get('/deletar/:codigo&:imagem', (req, res) => {
 
         res.redirect('/');
     }
-)});
+    )
+});
+
+//Rota para formulário de edição
+app.get('/formEditar/:codigo', (req, res) => {
+    let sql = `SELECT * FROM produtos WHERE codigo = ${req.params.codigo}`;
+    conexao.query(sql, function (erro, retorno) {
+        if (erro) throw erro;
+        res.render('formEditar', { produto: retorno[0] });
+    })
+
+})
 
 //Rota para editar o produto
-app.get('/editar/:codigo', (req, res) =>{
-    console.log(req.params.codigo);
-    res.end()
-})
+app.post('/editar', (req, res) => {
+    let codigo = req.body.codigo;
+    let nome = req.body.nome;
+    let valor = req.body.valor;
+    let imagemNome = req.body.imagemNome;
+
+ //Validando os dados recebidos
+    if (nome === '' || valor === '' || isNaN(valor)) {
+        res.redirect('/falhaDaEdicao');
+    }else{
+        try{
+
+
+        }catch (error) {
+            
+
+        }
+    }
+
+    // Log para depurar
+    console.log("Dados recebidos:", { codigo, nome, valor, imagemNome });
+
+    if (req.files && req.files.imagem) {
+        let imagem = req.files.imagem;
+        let novaImagemNome = imagem.name;
+
+        imagem.mv(__dirname + '/img/' + novaImagemNome, (erro) => {
+            if (erro) {
+                console.error("Erro ao salvar nova imagem:", erro);
+                res.status(500).send("Erro ao salvar nova imagem");
+                return;
+            }
+
+            // Verificar se imagemNome é válido antes de tentar excluir
+            if (imagemNome && typeof imagemNome === 'string') {
+                fs.unlink(__dirname + '/img/' + imagemNome, (err) => {
+                    if (err) console.error("Erro ao deletar imagem antiga:", err);
+                    else console.log("Imagem antiga deletada com sucesso!");
+                });
+            } else {
+                console.warn("Imagem antiga não encontrada ou inválida:", imagemNome);
+            }
+
+            let sql = 'UPDATE produtos SET nome = {nome}, valor = ?, imagem = ? WHERE codigo = ?';
+            conexao.query(sql, [nome, valor, novaImagemNome, codigo], function (erro, retorno) {
+                if (erro) {
+                    console.error("Erro ao atualizar produto:", erro);
+                    res.status(500).send("Erro ao atualizar produto");
+                    return;
+                }
+                console.log("Produto atualizado com nova imagem!");
+                res.redirect('/');
+            });
+        });
+    } else {
+        let sql = 'UPDATE produtos SET nome = ?, valor = ? WHERE codigo = ?';
+        conexao.query(sql, [nome, valor, codigo], function (erro, retorno) {
+            if (erro) {
+                console.error("Erro ao atualizar produto:", erro);
+                res.status(500).send("Erro ao atualizar produto");
+                return;
+            }
+            console.log("Produto atualizado sem alterar a imagem!");
+            res.redirect('/');
+        });
+    }
+});
 
 app.listen(3000, () => {
     console.log('server is running on port 3000');

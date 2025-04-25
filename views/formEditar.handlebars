@@ -1,0 +1,21 @@
+<main>
+    <!--Formulário para edição-->
+    <div class="container">
+        <div class="row">
+            <div class="col-6 offset-3">
+                <form action="/editar" method="post" enctype="multipart/form-data">
+                    <h1>Edição de Produto</h1>
+                    <img src="/img/{{produto.imagem}}" alt="Imagem do produto" class="img-fluid">
+                    <input type="hidden" name="imagemNome" value="{{produto.imagem}}">
+                    <input type="hidden" name="codigo" value="{{produto.codigo}}" required>
+                    <input type="text" name="nome" value = "{{produto.nome}}"class="form-control" placeholder="Nome do produto" required>
+                    <input type="text" name="valor" value = "{{produto.valor}}" class="form-control" placeholder="Preço" required>
+                    <input type="file" name="imagem" class="form-control" >
+                    <input type="submit" class="btn btn-primary" value="Alterar">
+                    <a href="/" class="btn btn-secondary">Cancelar</a>
+                </form>
+                
+            </div>
+        </div>
+    </div>
+</main> 
