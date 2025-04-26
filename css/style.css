@@ -26,9 +26,10 @@ form img{
 }
 
 .textos{
-    display: flex;
+    text-align: center;
+    display: inline-block;
     justify-content: space-around;
-    margin-top: 30px;
+    margin-top: 10px;
     font-weight: bold;
     
 }
